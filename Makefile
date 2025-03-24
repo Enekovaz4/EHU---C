@@ -1,5 +1,5 @@
 CC= g++
-SOURCES=main.cpp parser.cpp tokens.cpp
+SOURCES=main.cpp parser.cpp tokens.cpp Code.cpp
 TESTDIR=./test
 
 all: parser test

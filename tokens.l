@@ -7,7 +7,7 @@
 
 
  #define TOKEN(t) return t
- #define TOKENAME(t) yylval.name = new std::string(yytext, yyleng) ; return t 
+ #define TOKENAME(t) yylval.nombre = new std::string(yytext, yyleng) ; return t 
 
  extern int yyerror(const char *) ; 
 
@@ -64,7 +64,7 @@ read            TOKEN(RREAD);
 \/=             TOKEN (TCNE);
 >=              TOKEN (TCGE);
 \<=             TOKEN (TCLE);
->               TOKEN (TCGT);
+\>               TOKEN (TCGT);
 \<              TOKEN (TCLT);
 \?              TOKEN (TQMARK);
 \!              TOKEN (TEMARK);

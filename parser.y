@@ -1,7 +1,14 @@
 %{
    #include <iostream>
    #include <string>
-   using namespace std; 
+   #include <vector>
+   #include "Code.h"
+   #include "Aux.h"
+   
+   Code codigo;
+
+   using namespace std;
+
    extern int yyerrornum;
    extern int yylex();
    extern int yylineno;
@@ -10,19 +17,18 @@
      printf("line %d: %s at '%s'\n", yylineno, msg, yytext) ;
      yyerrornum++;
    }
-
 %}
 
-/* 
-   Ikurrek zein atributu-mota duten 
-      -------------------------------------
-   
-   Tipo de atributo de los símbolos
-*/
-%union {
-    string *name ; 
-}
 /*****/
+
+/* 
+   Tipo de atributo de los signos
+   Recordar: un solo atributo por signo y deben tener tipos básicos (entero, real,
+   carácter, puntero).                                  */
+
+%union {
+    string *nombre ;
+}
 
 /* 
    Tokenak eta bere atributuak erazagutu. Honek tokens.l fitxategiarekin 
@@ -53,12 +59,11 @@
 %token TPERCENT
 
 %token TQUOTES
-%token <name> TID TFLOAT_CNST TINT_CNST
+%token <nombre> TID TFLOAT_CNST TINT_CNST
 
 %nonassoc TCEQ TCNE TCGE TCLE TCGT TCLT
 
 %left TADD TSUB
-
 %left TMUL TDIVENT TDIVREAL
 
 
@@ -70,7 +75,7 @@
  
 */
 
-%type <name> statements statement expression
+
 
 
 /*** Hemen definitu eragileen lehentasunak, maila bakoitzeko lerro bat:        */
@@ -90,7 +95,7 @@ start : RDEF RMAIN TLPARENTHESIS TRPARENTHESIS mblock;
 
 mblock: bl_decl TLBRACE subprogs statements TRBRACE;
 
-block: bl_decl TLBRACE statements TRBRACE; 
+block: TLBRACE statements TRBRACE; 
 
 bl_decl: RLET decl RIN 
         |;
@@ -120,34 +125,99 @@ par_list_r: TSEMIC id_list TCOLON par_class type par_list_r
 par_class: TAMPERSAND
         |;
       
-statements: statements statement
-        |;
+statements : statements statement
+           |;
 
-statement: var_id_array TASSIG expression TSEMIC
-        | RIF expression block
-        | RFOREVER block
-        | RDO block RUNTIL expression RELSE block
-        | RBREAK RIF expression TSEMIC
-        | RNEXT TSEMIC
-        | RREAD TLPARENTHESIS var_id_array TRPARENTHESIS TSEMIC
-        | RPRINT TLPARENTHESIS expression TRPARENTHESIS TSEMIC
+statement : var_id_array TASSIG expression TSEMIC
+          | RIF expression block
+          | RFOREVER block
+          | RDO block RUNTIL expression RELSE block
+          | RBREAK RIF expression TSEMIC
+          | RNEXT TSEMIC
+          | RREAD TLPARENTHESIS var_id_array TRPARENTHESIS TSEMIC
+          | RPRINT TLPARENTHESIS expression TRPARENTHESIS TSEMIC
 
-var_id_array: TID
+var_id_array: TID{
+              $<nombre>$ = $<nombre>1;
+             };
 
-expression : expression TCEQ expression
-        | expression TCGT expression
-        | expression TCLT expression
-        | expression TCGE expression
-        | expression TCLE expression
-        | expression TCNE expression
-        | expression TADD expression
-        | expression TSUB expression
-        | expression TMUL expression
-        | expression TDIVREAL expression
-        | expression TDIVENT expression
-        | TID
-        | TINT_CNST
-        | TFLOAT_CNST
-        | TLPARENTHESIS expression TRPARENTHESIS
+expression : expression TCEQ expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " == " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | expression TCGT expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " > " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | expression TCLT expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " < " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | expression TCGE expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " >= " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | expression TCLE expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " <= " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | expression TCNE expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " /= " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | expression TADD expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " + " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | expression TSUB expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " - " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | expression TMUL expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " * " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | expression TDIVREAL expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " / " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | expression TDIVENT expression{ 
+      	      $<nombre>$ = new string;
+              *$<nombre>$ = codigo.nuevoId() ;
+              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " // " + *$<nombre>3) ;
+              delete $<nombre>1;	delete $<nombre>3;
+             }
+        | TID{
+              $<nombre>$ = $<nombre>1;
+             }
+        | TINT_CNST{
+              $<nombre>$ = $<nombre>1;
+             }
+        | TFLOAT_CNST{
+              $<nombre>$ = $<nombre>1;
+             }
+        | TLPARENTHESIS expression TRPARENTHESIS{
+              $<nombre>$ = $<nombre>1;
+             }
 %%
 

@@ -1,0 +1,6 @@
+program pruebaDeclaraciones
+{
+   a = 1;
+   a = a > 4;
+}
+
