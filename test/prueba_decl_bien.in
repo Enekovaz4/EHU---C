@@ -1,0 +1,8 @@
+program pruebaDeclaraciones
+{
+
+   a = 0.4756 * a ;
+   b = a* b * c * d ;
+   a = a + b * c ;
+}
+
