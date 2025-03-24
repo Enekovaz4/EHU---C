@@ -145,7 +145,6 @@ expression : expression TCEQ expression
         | expression TMUL expression
         | expression TDIVREAL expression
         | expression TDIVENT expression
-        | expression  expression
         | TID
         | TINT_CNST
         | TFLOAT_CNST

@@ -41,30 +41,23 @@ read            TOKEN(RREAD);
 
 
 
-=                       TOKEN(TASSIG);
-\{                      TOKEN(TLBRACE);
-\}                      TOKEN(TRBRACE);
-
+=               TOKEN(TASSIG);
+\{              TOKEN(TLBRACE);
+\}              TOKEN(TRBRACE);
 \(              TOKEN(TLPARENTHESIS);
 \)              TOKEN(TRPARENTHESIS);
-
 #               TOKEN(THASHTAG);
 \$              TOKEN(TDOLLAR);
-
 \_              TOKEN(TUNDERSCORE);
-
 :               TOKEN (TCOLON);
 '               TOKEN (TAPOSTROPHE);
 ;               TOKEN (TSEMIC);
 ,               TOKEN (TCOMMA);
-
 \+              TOKEN(TADD);
 \-              TOKEN(TSUB);
 \*              TOKEN(TMUL);
 \/\/            TOKEN(TDIVENT);
 \/              TOKEN(TDIVREAL);
-
-
 &               TOKEN (TAMPERSAND);
 
 ==              TOKEN (TCEQ);
@@ -73,13 +66,10 @@ read            TOKEN(RREAD);
 \<=             TOKEN (TCLE);
 >               TOKEN (TCGT);
 \<              TOKEN (TCLT);
-
-\?               TOKEN (TQMARK);
-\!               TOKEN (TEMARK);
-
-\%               TOKEN (TPERCENT);
-
-\"               TOKEN (TQUOTES);
+\?              TOKEN (TQMARK);
+\!              TOKEN (TEMARK);
+\%              TOKEN (TPERCENT);
+\"              TOKEN (TQUOTES);
 
 [ \t\n]                 ;
 
