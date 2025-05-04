@@ -1,9 +1,12 @@
 %option yylineno 
+%option nounput
 
 %{
- #include <iostream>
+ #include <string>
  using namespace std ;
- #include "parser.h" 
+ #include "Exp.hpp"
+ #include "Stmt.hpp"
+ #include "parser.hpp"
 
 
  #define TOKEN(t) return t
@@ -16,7 +19,9 @@
 
 %%
 
-#!.*\n                  ;
+#[^#]*\n                        ; // Comentario Linea
+'''([^']|'[^']|'')*?'''     ;
+
 
 program			TOKEN(RPROGRAM);
 procedure		TOKEN(RPROCEDURE);

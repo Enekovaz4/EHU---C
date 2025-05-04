@@ -1,12 +1,9 @@
 %{
+   #include <stdio.h>
    #include <iostream>
+   #include <list>
    #include <string>
    #include <vector>
-   #include "Code.h"
-   #include "Aux.h"
-   
-   Code codigo;
-
    using namespace std;
 
    extern int yyerrornum;
@@ -17,6 +14,12 @@
      printf("line %d: %s at '%s'\n", yylineno, msg, yytext) ;
      yyerrornum++;
    }
+
+   #include "Codigo.hpp"
+   #include "Exp.hpp"
+   #include "Stmt.hpp"
+   
+   Codigo codigo;
 %}
 
 /*****/
@@ -27,7 +30,12 @@
    carácter, puntero).                                  */
 
 %union {
-    string *nombre ;
+    string *nombre              ;
+    IdLista *list               ;
+    expressionStruct *expr      ;
+    statementStruct *stmt      ;
+    int ref                  ;
+    RefLista *lent              ;
 }
 
 /* 
@@ -46,35 +54,36 @@
    
 */
 
+%token TQUOTES
+%token <nombre> TADD TSUB TMUL TDIVENT TDIVREAL
+%token <nombre> TASSIG 
+%token <nombre> TID TFLOAT_CNST TINT_CNST
+%token <nombre> RFLOAT RINT
+%token <nombre> TCEQ TCNE TCGE TCLE TCGT TCLT
 
-%token RPROGRAM RPROCEDURE RMAIN RDEF RLET RIN RID RINT RFLOAT RFOREVER RIF RDO RUNTIL RELSE RBREAK RNEXT RPRINT RREAD
+/*  Estos tokens no tienen atributos:   */
+
+%token RPROGRAM RPROCEDURE RMAIN RDEF RLET RIN RID RFOREVER RIF RDO RUNTIL RELSE RBREAK RNEXT RPRINT RREAD
 %token TLPARENTHESIS TRPARENTHESIS
-%token TRBRACE TLBRACE TASSIG TSEMIC
+%token TRBRACE TLBRACE TSEMIC
 %token THASHTAG TDOLLAR TUNDERSCORE
-%token TADD TSUB TMUL TDIVENT TDIVREAL
 %token TCOLON TAPOSTROPHE TCOMMA
 %token TAMPERSAND
-%token TCEQ TCNE TCGE TCLE TCGT TCLT
 %token TQMARK TEMARK
 %token TPERCENT
-
-%token TQUOTES
-%token <nombre> TID TFLOAT_CNST TINT_CNST
-
-%nonassoc TCEQ TCNE TCGE TCLE TCGT TCLT
-
-%left TADD TSUB
-%left TMUL TDIVENT TDIVREAL
 
 
 /* Hemen erazagutu atributuak dauzkaten ez-bukaerakoak 
 
 -------------------------------------------------------
 
-  Declarar aquí los no terminales que tienen atributos
+  Declarar aquí los no terminales que tienen atributos */
  
-*/
-
+%type <expr> expression
+%type <stmt> statement statements block
+%type <nombre> type 
+%type <list> var_id_array
+%type <ref> M
 
 
 
@@ -87,18 +96,38 @@
 /*** Definir aquí las prioridades de los operadores, una línea por cada nivel: */
 /*** %left evaluar de izquierda a derecha                                      */
 /*** %nonassoc solo se admite un operador en la secuencia                      */
+%nonassoc TCEQ TCNE TCGE TCLE TCGT TCLT
+
+%left TADD TSUB
+%left TMUL TDIVENT TDIVREAL
+
+
+/*Símbolo de comienzo*/
+%start start
 
 %%
 
+
+
+
+
+
+
 start : RPROGRAM TID TLBRACE statements TRBRACE;
-start : RDEF RMAIN TLPARENTHESIS TRPARENTHESIS mblock;
+start : RDEF RMAIN TLPARENTHESIS TRPARENTHESIS { codigo.anadirInstruccion("prog main");}  mblock;
 
-mblock: bl_decl TLBRACE subprogs statements TRBRACE;
+mblock: bl_decl TLBRACE subprogs statements TRBRACE { 
+                codigo.anadirInstruccion("goto ");
+        } ;
 
-block: TLBRACE statements TRBRACE; 
+block: TLBRACE statements TRBRACE {
+                $$->breaks = $2->breaks;
+                $$->next = $2->next;
+        }; 
+        
 
 bl_decl: RLET decl RIN 
-        |;
+        |%empty;
 
 decl:  decl TSEMIC id_list TCOLON type
         | id_list TCOLON type;
@@ -110,114 +139,217 @@ type: RINT
     |RFLOAT;
 
 subprogs: subprogs subprog
-        |;
+        |%empty;
 
 subprog: RDEF TID arguments mblock;
 
 arguments: TLPARENTHESIS par_list TRPARENTHESIS
-        |;
+        |%empty;
 
 par_list: id_list TCOLON par_class type par_list_r;
 
 par_list_r: TSEMIC id_list TCOLON par_class type par_list_r
-        |;
+        |%empty;
 
 par_class: TAMPERSAND
-        |;
+        |%empty;
       
-statements : statements statement
-           |;
+statements : statements statement 
+        {
+                $$ = new statementStruct;
+                $$->breaks = codigo.unir($1->breaks, $2->breaks);
+                $$->next = codigo.unir($1->next, $2->next);
+        }
+           |%empty
+        {
+                $$->breaks = new list<int>();
+                $$->next = new list<int>();
+        } ;
 
-statement : var_id_array TASSIG expression TSEMIC
-          | RIF expression block
-          | RFOREVER block
-          | RDO block RUNTIL expression RELSE block
-          | RBREAK RIF expression TSEMIC
-          | RNEXT TSEMIC
-          | RREAD TLPARENTHESIS var_id_array TRPARENTHESIS TSEMIC
-          | RPRINT TLPARENTHESIS expression TRPARENTHESIS TSEMIC
+statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir
+                $$ = new statementStruct;
+                
+                codigo.anadirInstruccion(($1->front()) + " := " + $3->nombre);
+
+                $$->breaks = new RefLista();
+                $$->next = new RefLista();
+        }
+
+          | RIF expression M block M {
+                $$ = new statementStruct;
+
+                codigo.completarInstrucciones($2->trues, $3);
+                codigo.completarInstrucciones($2->falses, $5);
+
+                $$->next = $4->next;
+                $$->breaks = $4->breaks;
+          }
+          | RFOREVER M block{
+                $$ = new statementStruct;
+
+                codigo.anadirInstruccion("goto " + to_string($2));
+
+                codigo.completarInstrucciones(*($3->breaks), codigo.obtenRef());
+                codigo.completarInstrucciones(*($3->next), $2);
+
+                $$->next = new RefLista();
+                $$->breaks = new RefLista();
+          }
+          | RDO M block RUNTIL expression RELSE M block M {
+                $$ = new statementStruct;
+
+                codigo.completarInstrucciones($5->trues, $9);
+                codigo.completarInstrucciones($5->falses, $2);
+
+                codigo.completarInstrucciones($3->breaks, $7);
+                codigo.completarInstrucciones($3->next, $7);
+
+                $$->next = new RefLista;
+                $$->breaks = new RefLista;
+          }
+          | RBREAK RIF expression TSEMIC {
+                $$ = new statementStruct;
+               
+                codigo.completarInstrucciones($3->trues, codigo.obtenRef());
+
+                $$->breaks = new RefLista();
+                $$->breaks->push_back(codigo.obtenRef());
+                $$->next = new RefLista();
+          }
+          | RNEXT TSEMIC {
+                $$ = new statementStruct;
+
+                codigo.anadirInstruccion("goto ");
+
+                $$->next = new RefLista();
+                $$->next->push_back(codigo.obtenRef());
+                $$->breaks = new RefLista();
+          }
+          | RREAD TLPARENTHESIS var_id_array TRPARENTHESIS TSEMIC {
+                $$ = new statementStruct;
+
+                $$->breaks = new RefLista();
+                $$->next = new RefLista();
+
+                for (const std::string& varName : *$3) {
+                        codigo.anadirInstruccion("read " + varName);
+                }
+          }
+          | RPRINT TLPARENTHESIS expression TRPARENTHESIS TSEMIC {
+                $$ = new statementStruct;
+
+                codigo.anadirInstruccion("write " + $3->nombre);
+
+                $$->breaks = new list<int>();
+                $$->next = new list<int>();
+          }
 
 var_id_array: TID{
-              $<nombre>$ = $<nombre>1;
-             };
+    $$ = new std::list<std::string>;
+    $$->push_back(*$1);
+};
 
 expression : expression TCEQ expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " == " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                $$ = new expressionStruct;
+                $$->trues.push_back(codigo.obtenRef()) ;
+                $$->falses.push_back(codigo.obtenRef()+1) ;
+                codigo.anadirInstruccion("if " + $1->nombre + " " + *$2 + " " + $3->nombre  + " goto") ;
+                codigo.anadirInstruccion("goto") ;
              }
         | expression TCGT expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " > " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                $$ = new expressionStruct;
+                $$->trues.push_back(codigo.obtenRef()) ;
+                $$->falses.push_back(codigo.obtenRef()+1) ;
+                codigo.anadirInstruccion("if " + $1->nombre + " " + *$2 + " " + $3->nombre  + " goto") ;
+                codigo.anadirInstruccion("goto") ;
              }
         | expression TCLT expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " < " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                $$ = new expressionStruct;
+                $$->trues.push_back(codigo.obtenRef()) ;
+                $$->falses.push_back(codigo.obtenRef()+1) ;
+                codigo.anadirInstruccion("if " + $1->nombre + " " + *$2 + " " + $3->nombre  + " goto") ;
+                codigo.anadirInstruccion("goto") ;
              }
         | expression TCGE expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " >= " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                $$ = new expressionStruct;
+                $$->trues.push_back(codigo.obtenRef()) ;
+                $$->falses.push_back(codigo.obtenRef()+1) ;
+                codigo.anadirInstruccion("if " + $1->nombre + " " + *$2 + " " + $3->nombre  + " goto") ;
+                codigo.anadirInstruccion("goto") ;
              }
         | expression TCLE expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " <= " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                $$ = new expressionStruct;
+                $$->trues.push_back(codigo.obtenRef()) ;
+                $$->falses.push_back(codigo.obtenRef()+1) ;
+                codigo.anadirInstruccion("if " + $1->nombre + " " + *$2 + " " + $3->nombre  + " goto") ;
+                codigo.anadirInstruccion("goto") ;
              }
         | expression TCNE expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " /= " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                $$ = new expressionStruct;
+                $$->trues.push_back(codigo.obtenRef()) ;
+                $$->falses.push_back(codigo.obtenRef()+1) ;
+                codigo.anadirInstruccion("if " + $1->nombre + " " + *$2 + " " + $3->nombre  + " goto") ;
+                codigo.anadirInstruccion("goto") ;
              }
         | expression TADD expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " + " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                        $$ = new expressionStruct;
+                        $$->nombre = codigo.nuevoId();
+                        $$->falses = list<int>();
+                        $$->trues = list<int>();
+                        codigo.anadirInstruccion($$->nombre + " := " + $1->nombre + " + " + $3->nombre) ;
              }
         | expression TSUB expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " - " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                        $$ = new expressionStruct;
+                        $$->nombre = codigo.nuevoId();
+                        $$->falses = list<int>();
+                        $$->trues = list<int>();
+                        codigo.anadirInstruccion($$->nombre + " := " + $1->nombre + " - " + $3->nombre) ;
              }
         | expression TMUL expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " * " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                        $$ = new expressionStruct;
+                        $$->nombre = codigo.nuevoId();
+                        $$->falses = list<int>();
+                        $$->trues = list<int>();
+                        codigo.anadirInstruccion($$->nombre + " := " + $1->nombre + " * " + $3->nombre) ;
              }
         | expression TDIVREAL expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " / " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                        $$ = new expressionStruct;
+                        $$->nombre = codigo.nuevoId();
+                        $$->falses = list<int>();
+                        $$->trues = list<int>();
+                        codigo.anadirInstruccion($$->nombre + " := " + $1->nombre + " / " + $3->nombre) ;
              }
         | expression TDIVENT expression{ 
-      	      $<nombre>$ = new string;
-              *$<nombre>$ = codigo.nuevoId() ;
-              codigo.añadirInst(*$<nombre>$ + " := " + *$<nombre>1 + " // " + *$<nombre>3) ;
-              delete $<nombre>1;	delete $<nombre>3;
+                        $$ = new expressionStruct;
+                        $$->nombre = codigo.nuevoId();
+                        $$->falses = list<int>();
+                        $$->trues = list<int>();
+                        codigo.anadirInstruccion($$->nombre + " := " + $1->nombre + " div " + $3->nombre) ;
              }
         | TID{
-              $<nombre>$ = $<nombre>1;
+                $$ = new expressionStruct;
+                $$->nombre = *$1;
+                $$->falses = list<int>();
+                $$->trues = list<int>();
              }
         | TINT_CNST{
-              $<nombre>$ = $<nombre>1;
+                $$ = new expressionStruct;
+                $$->nombre = *$1;
+                $$->falses = list<int>();
+                $$->trues = list<int>();
              }
         | TFLOAT_CNST{
-              $<nombre>$ = $<nombre>1;
+                $$ = new expressionStruct;
+                $$->nombre = *$1;
+                $$->falses = list<int>();
+                $$->trues = list<int>();
              }
         | TLPARENTHESIS expression TRPARENTHESIS{
-              $<nombre>$ = $<nombre>1;
+                $$ = new expressionStruct;
+                $$->nombre = $2->nombre;
+                $$->falses = $2->falses;
+                $$->trues = $2->trues;
              }
+M:  %empty { $$ = codigo.obtenRef() ; }
 %%
 

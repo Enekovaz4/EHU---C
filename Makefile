@@ -1,5 +1,5 @@
 CC= g++
-SOURCES=main.cpp parser.cpp tokens.cpp Code.cpp
+SOURCES=parser.cpp main.cpp tokens.cpp Codigo.cpp
 TESTDIR=./test
 
 all: parser test
@@ -7,12 +7,12 @@ all: parser test
 .PHONY: clean test
 
 clean:
-	rm parser.cpp parser.h parser tokens.cpp parser.output *~
+	rm parser.cpp parser.hpp parser tokens.cpp parser.output *~
 
-parser.cpp parser.h: parser.y
+parser.cpp parser.hpp: parser.y
 	bison -r all -Wcounterexamples --defines=$(subst cpp,h,$@) -o $@ $^
 
-tokens.cpp: tokens.l parser.h
+tokens.cpp: tokens.l parser.hpp
 	flex --yylineno -o $@ $<
 
 parser: $(SOURCES)

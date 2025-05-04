@@ -1,0 +1,12 @@
+program pruebaDeclaraciones
+{
+   # Esto es un comentario
+   # asdfasdf 
+   ''' comenatario multilinea '''
+   ''' comenatario
+   multilinea '''
+   ''' ' '''
+   ''' ''' '''
+
+
+}

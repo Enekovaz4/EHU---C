@@ -1,0 +1,11 @@
+program pruebaIf
+{
+   a = 2;
+   if 1 == 2 {
+      print(a);
+   }
+
+   if a /= 2 {
+      print(b);
+   }
+}
