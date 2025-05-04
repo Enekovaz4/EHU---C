@@ -116,8 +116,8 @@ union YYSTYPE
     string *nombre              ;
     IdLista *list               ;
     expressionStruct *expr      ;
-    statementStruct *stmt      ;
-    int ref                  ;
+    statementStruct *stmt       ;
+    int ref                     ;
     RefLista *lent              ;
 
 #line 124 "parser.h"

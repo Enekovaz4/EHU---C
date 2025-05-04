@@ -33,8 +33,8 @@
     string *nombre              ;
     IdLista *list               ;
     expressionStruct *expr      ;
-    statementStruct *stmt      ;
-    int ref                  ;
+    statementStruct *stmt       ;
+    int ref                     ;
     RefLista *lent              ;
 }
 
@@ -81,7 +81,8 @@
  
 %type <expr> expression
 %type <stmt> statement statements block
-%type <nombre> type 
+%type <nombre> type par_class
+%type <list> id_list
 %type <list> var_id_array
 %type <ref> M
 
@@ -129,30 +130,44 @@ block: TLBRACE statements TRBRACE {
 bl_decl: RLET decl RIN 
         |%empty;
 
-decl:  decl TSEMIC id_list TCOLON type
-        | id_list TCOLON type;
+decl:  decl TSEMIC id_list TCOLON type {
+        codigo.anadirDeclaraciones(*$3, *$5);
+}
+        | id_list TCOLON type {
+                codigo.anadirDeclaraciones(*$1, *$3);
+        };
 
-id_list: id_list TCOMMA TID
-        | TID;
+id_list: id_list TCOMMA TID {
+        $$ = $1;
+        $$->push_back(*$3);
+}
+        | TID {
+                $$ = new IdLista();
+                $$->push_back(*$1);
+        };
 
-type: RINT
-    |RFLOAT;
+type: RINT { $$ = "int"; }
+    |RFLOAT { $$ = "real"; };
 
 subprogs: subprogs subprog
         |%empty;
 
-subprog: RDEF TID arguments mblock;
+subprog: RDEF TID { codigo.anadirInstruccion("prog " + *$2); } arguments mblock;
 
 arguments: TLPARENTHESIS par_list TRPARENTHESIS
         |%empty;
 
-par_list: id_list TCOLON par_class type par_list_r;
+par_list: id_list TCOLON par_class type {
+    codigo.anadirParametros(*$1, *$3, *$4);
+} par_list_r;
 
-par_list_r: TSEMIC id_list TCOLON par_class type par_list_r
+par_list_r: TSEMIC id_list TCOLON par_class type {
+    codigo.anadirParametros(*$2, *$4, *$5);
+} par_list_r
         |%empty;
 
-par_class: TAMPERSAND
-        |%empty;
+par_class: TAMPERSAND { $$ = new std::string("ref"); }
+        |%empty { $$ = new std::string("val"); } ;
       
 statements : statements statement 
         {
