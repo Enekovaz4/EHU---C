@@ -112,7 +112,7 @@
 
 
 
-start : RPROGRAM TID TLBRACE statements TRBRACE;
+/*start : RPROGRAM TID TLBRACE statements TRBRACE;*/
 start : RDEF RMAIN TLPARENTHESIS TRPARENTHESIS { codigo.anadirInstruccion("prog main");}  mblock;
 
 mblock: bl_decl TLBRACE subprogs statements TRBRACE { 
