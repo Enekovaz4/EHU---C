@@ -94,13 +94,19 @@ int Codigo::obtenRef() const {
 /* Unir */
 /************/
 
-list<int>* Codigo::unir(list<int>* lis1, list<int>* lis2)
+// list<int>* Codigo::unir(list<int> lis1, list<int> lis2)
+// {
+//    list<int>* nueva = new list<int>;
+//    *nueva = lis1;
+//    nueva->insert(nueva->end(), lis2.begin(), lis2.end());
+//    return nueva;
+// }
+
+list<int> Codigo::unir(const list<int>& lis1, const list<int>& lis2)
 {
-   list<int>* nueva = new list<int>;
-   *nueva = *lis1;
-   nueva->insert(nueva->end(), lis1->begin(), lis1->end());
-   nueva->insert(nueva->end(), lis2->begin(), lis2->end());
-   return nueva;
+    list<int> nueva = lis1;
+    nueva.insert(nueva.end(), lis2.begin(), lis2.end());
+    return nueva;
 }
 
 

@@ -15,4 +15,9 @@ struct expressionStruct {
   RefLista falses ;
 };
 
+struct statementStruct {
+  RefLista breaks ;
+  RefLista next ;
+};
+
 #endif /* EXP_HPP_ */

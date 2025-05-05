@@ -61,7 +61,7 @@ public:
     int obtenRef() const;
 
     /* Une 2 listas de enteros y la devuelve */
-    list<int>* unir(list<int>* lis1, list<int>* lis2);
+    list<int> unir(const list<int>& lis1, const list<int>& lis2);
 
 };
 

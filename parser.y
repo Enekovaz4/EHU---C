@@ -17,7 +17,6 @@
 
    #include "Codigo.hpp"
    #include "Exp.hpp"
-   #include "Stmt.hpp"
    
    Codigo codigo;
 %}
@@ -81,9 +80,8 @@
  
 %type <expr> expression
 %type <stmt> statement statements block
-%type <nombre> type par_class
+%type <nombre> type par_class var_id_array
 %type <list> id_list
-%type <list> var_id_array
 %type <ref> M
 
 
@@ -146,8 +144,8 @@ id_list: id_list TCOMMA TID {
                 $$->push_back(*$1);
         };
 
-type: RINT { $$ = "int"; }
-    |RFLOAT { $$ = "real"; };
+type: RINT { $$ = new std::string("int"); }
+    |RFLOAT { $$ = new std::string("real"); };
 
 subprogs: subprogs subprog
         |%empty;
@@ -172,22 +170,19 @@ par_class: TAMPERSAND { $$ = new std::string("ref"); }
 statements : statements statement 
         {
                 $$ = new statementStruct;
+
                 $$->breaks = codigo.unir($1->breaks, $2->breaks);
                 $$->next = codigo.unir($1->next, $2->next);
         }
            |%empty
         {
-                $$->breaks = new list<int>();
-                $$->next = new list<int>();
+                $$ = new statementStruct;
         } ;
 
 statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir
                 $$ = new statementStruct;
                 
-                codigo.anadirInstruccion(($1->front()) + " := " + $3->nombre);
-
-                $$->breaks = new RefLista();
-                $$->next = new RefLista();
+                codigo.anadirInstruccion(*$1 + " := " + $3->nombre);
         }
 
           | RIF expression M block M {
@@ -204,11 +199,9 @@ statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir
 
                 codigo.anadirInstruccion("goto " + to_string($2));
 
-                codigo.completarInstrucciones(*($3->breaks), codigo.obtenRef());
-                codigo.completarInstrucciones(*($3->next), $2);
+                codigo.completarInstrucciones($3->breaks, codigo.obtenRef());
+                $$->next = $3->next; // TODO Esta bien
 
-                $$->next = new RefLista();
-                $$->breaks = new RefLista();
           }
           | RDO M block RUNTIL expression RELSE M block M {
                 $$ = new statementStruct;
@@ -216,52 +209,37 @@ statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir
                 codigo.completarInstrucciones($5->trues, $9);
                 codigo.completarInstrucciones($5->falses, $2);
 
-                codigo.completarInstrucciones($3->breaks, $7);
+                codigo.completarInstrucciones($3->breaks, $9); // TODO corregir en ETDS
                 codigo.completarInstrucciones($3->next, $7);
-
-                $$->next = new RefLista;
-                $$->breaks = new RefLista;
           }
           | RBREAK RIF expression TSEMIC {
                 $$ = new statementStruct;
                
-                codigo.completarInstrucciones($3->trues, codigo.obtenRef());
+                codigo.completarInstrucciones($3->falses, codigo.obtenRef());
 
-                $$->breaks = new RefLista();
-                $$->breaks->push_back(codigo.obtenRef());
-                $$->next = new RefLista();
+                $$->breaks = $3->trues;
           }
-          | RNEXT TSEMIC {
+          | RNEXT TSEMIC { // OK: revisar ETDS
                 $$ = new statementStruct;
+
+                $$->next.push_back(codigo.obtenRef());
 
                 codigo.anadirInstruccion("goto ");
 
-                $$->next = new RefLista();
-                $$->next->push_back(codigo.obtenRef());
-                $$->breaks = new RefLista();
           }
           | RREAD TLPARENTHESIS var_id_array TRPARENTHESIS TSEMIC {
                 $$ = new statementStruct;
 
-                $$->breaks = new RefLista();
-                $$->next = new RefLista();
-
-                for (const std::string& varName : *$3) {
-                        codigo.anadirInstruccion("read " + varName);
-                }
+                codigo.anadirInstruccion("read " + *$3);
           }
           | RPRINT TLPARENTHESIS expression TRPARENTHESIS TSEMIC {
                 $$ = new statementStruct;
 
                 codigo.anadirInstruccion("write " + $3->nombre);
-
-                $$->breaks = new list<int>();
-                $$->next = new list<int>();
           }
 
 var_id_array: TID{
-    $$ = new std::list<std::string>;
-    $$->push_back(*$1);
+    $$ = $1;
 };
 
 expression : expression TCEQ expression{ 
