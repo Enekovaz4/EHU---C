@@ -1,4 +1,4 @@
-program pruebaDeclaraciones
+def main ()
 {
    # Esto es un comentario
    # asdfasdf 
