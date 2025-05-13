@@ -1,0 +1,16 @@
+def main ()
+    let a,b,c : int;
+    d,e : float ''' esto ' es un comentario
+    multilinea ''' in {
+        def add ( x,y: int; result: & int)
+            let aux, iteration : int in {
+                aux = x;
+                result = y;
+
+                            
+                if result < 1000 {
+                    iteration = 0;
+                }
+        } 
+
+    }

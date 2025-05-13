@@ -179,11 +179,11 @@ statements : statements statement
                 $$ = new statementStruct;
         } ;
 
-statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir
+statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir DONE
                 $$ = new statementStruct;
                 
                 codigo.anadirInstruccion(*$1 + " := " + $3->nombre);
-        }
+        };
 
           | RIF expression M block M {
                 $$ = new statementStruct;
@@ -200,7 +200,7 @@ statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir
                 codigo.anadirInstruccion("goto " + to_string($2));
 
                 codigo.completarInstrucciones($3->breaks, codigo.obtenRef());
-                $$->next = $3->next; // TODO Esta bien
+                $$->next = $3->next; // TODO Esta bien DONE
 
           }
           | RDO M block RUNTIL expression RELSE M block M {
@@ -209,7 +209,7 @@ statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir
                 codigo.completarInstrucciones($5->trues, $9);
                 codigo.completarInstrucciones($5->falses, $2);
 
-                codigo.completarInstrucciones($3->breaks, $9); // TODO corregir en ETDS
+                codigo.completarInstrucciones($3->breaks, $9); // TODO corregir en ETDS DONE
                 codigo.completarInstrucciones($3->next, $7);
           }
           | RBREAK RIF expression TSEMIC {
@@ -218,7 +218,7 @@ statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir
                 codigo.completarInstrucciones($3->falses, codigo.obtenRef());
 
                 $$->breaks = $3->trues;
-          }
+          };
           | RNEXT TSEMIC { // OK: revisar ETDS
                 $$ = new statementStruct;
 
@@ -226,17 +226,17 @@ statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir
 
                 codigo.anadirInstruccion("goto ");
 
-          }
+          };
           | RREAD TLPARENTHESIS var_id_array TRPARENTHESIS TSEMIC {
                 $$ = new statementStruct;
 
                 codigo.anadirInstruccion("read " + *$3);
-          }
+          };
           | RPRINT TLPARENTHESIS expression TRPARENTHESIS TSEMIC {
                 $$ = new statementStruct;
 
                 codigo.anadirInstruccion("write " + $3->nombre);
-          }
+          };
 
 var_id_array: TID{
     $$ = $1;

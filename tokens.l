@@ -18,8 +18,8 @@
 
 %%
 
-#[^#]*\n                        ; // Comentario Linea
-'''([^']|'[^']|'')*?'''     ;
+#.*\n                        ; // Comentario Linea
+'''([^']|'[^']|'')*?'''      ;
 
 
 program			TOKEN(RPROGRAM);

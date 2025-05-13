@@ -14,7 +14,7 @@ def main () # proba on 2
                     aux = aux - 1;
                     iteration = iteration + 1;
                     } until aux /= 0
-                    else {
+                else {
                     print(iteration);
                 } # end do
             } # end if
@@ -23,7 +23,7 @@ def main () # proba on 2
         read(a); read(b);
         d= 1/b;
         e= 1/a;
-        add(a,b,c); ''' solo para quienes hagan llamadas a subprogramas '''
-        c= c*(c*d)+e;
-        print(c*c);
+        '''add(a,b,c);  solo para quienes hagan llamadas a subprogramas '''
+        #c= c*(c*d)+e;
+        #print(c*c);
     }
