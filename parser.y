@@ -117,12 +117,14 @@ start : RDEF RMAIN TLPARENTHESIS TRPARENTHESIS { codigo.anadirInstruccion("prog 
 
 mblock: bl_decl TLBRACE subprogs statements TRBRACE { 
                 codigo.anadirInstruccion("goto ");
-        } ;
+        };
 
 block: TLBRACE statements TRBRACE {
+                $$ = new statementStruct;
+                
                 $$->breaks = $2->breaks;
                 $$->next = $2->next;
-        }; 
+        };
         
 
 bl_decl: RLET decl RIN 
@@ -157,7 +159,7 @@ arguments: TLPARENTHESIS par_list TRPARENTHESIS
 
 par_list: id_list TCOLON par_class type {
     codigo.anadirParametros(*$1, *$3, *$4);
-} par_list_r;
+} par_list_r
 
 par_list_r: TSEMIC id_list TCOLON par_class type {
     codigo.anadirParametros(*$2, *$4, *$5);
@@ -165,7 +167,7 @@ par_list_r: TSEMIC id_list TCOLON par_class type {
         |%empty;
 
 par_class: TAMPERSAND { $$ = new std::string("ref"); }
-        |%empty { $$ = new std::string("val"); } ;
+        |%empty { $$ = new std::string("val"); }; 
       
 statements : statements statement 
         {
@@ -177,14 +179,13 @@ statements : statements statement
            |%empty
         {
                 $$ = new statementStruct;
-        } ;
+        };
 
-statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir DONE
+statement : var_id_array TASSIG expression TSEMIC {
                 $$ = new statementStruct;
                 
                 codigo.anadirInstruccion(*$1 + " := " + $3->nombre);
         };
-
           | RIF expression M block M {
                 $$ = new statementStruct;
 
@@ -193,8 +194,8 @@ statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir DONE
 
                 $$->next = $4->next;
                 $$->breaks = $4->breaks;
-          }
-          | RFOREVER M block{
+          };
+          | RFOREVER M block {
                 $$ = new statementStruct;
 
                 codigo.anadirInstruccion("goto " + to_string($2));
@@ -202,7 +203,7 @@ statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir DONE
                 codigo.completarInstrucciones($3->breaks, codigo.obtenRef());
                 $$->next = $3->next; // TODO Esta bien DONE
 
-          }
+          };
           | RDO M block RUNTIL expression RELSE M block M {
                 $$ = new statementStruct;
 
@@ -211,7 +212,7 @@ statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir DONE
 
                 codigo.completarInstrucciones($3->breaks, $9); // TODO corregir en ETDS DONE
                 codigo.completarInstrucciones($3->next, $7);
-          }
+          };
           | RBREAK RIF expression TSEMIC {
                 $$ = new statementStruct;
                
@@ -219,14 +220,14 @@ statement : var_id_array TASSIG expression TSEMIC { // TODO Corregir DONE
 
                 $$->breaks = $3->trues;
           };
-          | RNEXT TSEMIC { // OK: revisar ETDS
+          | RNEXT TSEMIC {
                 $$ = new statementStruct;
 
                 $$->next.push_back(codigo.obtenRef());
 
                 codigo.anadirInstruccion("goto ");
 
-          };
+          }
           | RREAD TLPARENTHESIS var_id_array TRPARENTHESIS TSEMIC {
                 $$ = new statementStruct;
 
@@ -260,7 +261,7 @@ expression : expression TCEQ expression{
                 $$ = new expressionStruct;
                 $$->trues.push_back(codigo.obtenRef()) ;
                 $$->falses.push_back(codigo.obtenRef()+1) ;
-                codigo.anadirInstruccion("if " + $1->nombre + " " + *$2 + " " + $3->nombre  + " goto") ;
+                codigo.anadirInstruccion("if " + $1->nombre + " < " + $3->nombre  + " goto") ;
                 codigo.anadirInstruccion("goto") ;
              }
         | expression TCGE expression{ 
