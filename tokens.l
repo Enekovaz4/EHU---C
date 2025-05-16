@@ -18,7 +18,7 @@
 
 %%
 
-#[^#\n]*                    ; // Comentario Linea
+#[^#\n]+                    ; // Comentario Linea
 '''[^'#]*''' ;
 
 

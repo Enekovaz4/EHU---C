@@ -121,7 +121,7 @@ mblock: bl_decl TLBRACE subprogs statements TRBRACE {
 
 block: TLBRACE statements TRBRACE {
                 $$ = new statementStruct;
-                
+
                 $$->breaks = $2->breaks;
                 $$->next = $2->next;
         };
@@ -237,6 +237,11 @@ statement : var_id_array TASSIG expression TSEMIC {
                 $$ = new statementStruct;
 
                 codigo.anadirInstruccion("write " + $3->nombre);
+          };
+          | TID arguments TSEMIC {
+                $$ = new statementStruct;
+
+                codigo.anadirInstruccion("call " + *$1);
           };
 
 var_id_array: TID{
