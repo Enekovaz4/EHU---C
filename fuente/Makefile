@@ -1,6 +1,7 @@
 CC= g++
 SOURCES=parser.cpp main.cpp tokens.cpp Codigo.cpp
-TESTDIR=./test
+TESTDIR=../Pruebas
+CFLAGS = -g -O0
 
 all: parser test
 

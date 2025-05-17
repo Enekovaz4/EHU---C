@@ -1,0 +1,17 @@
+#################
+## TIPO ENTREGA
+#################
+Individual
+
+##########
+## NOMBRE
+##########
+Eneko Vázquez López
+
+##########
+## NOTAS
+##########
+
+-Para ejecutar y compilar el programa únicamente será necesarío poner el comando "make" en la terminal (dentro de la carpeta "fuente") y se ejecutará el programa con los casos de prueba insertados en la carpeta test.
+
+- Las expresiones booleanas (ROR RAND RNOT) se han añadido como %nonassoc ya que si no se añaden ahi, le cuesta un poco en compilar (poero funciona correctamente)

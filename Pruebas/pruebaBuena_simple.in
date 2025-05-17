@@ -1,0 +1,6 @@
+# Probando estructura basica de un main
+
+def main ()
+{
+    print(OK);
+}

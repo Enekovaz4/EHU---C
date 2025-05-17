@@ -72,37 +72,40 @@ extern int yydebug;
     TCLE = 273,                    /* TCLE  */
     TCGT = 274,                    /* TCGT  */
     TCLT = 275,                    /* TCLT  */
-    RPROGRAM = 276,                /* RPROGRAM  */
-    RPROCEDURE = 277,              /* RPROCEDURE  */
-    RMAIN = 278,                   /* RMAIN  */
-    RDEF = 279,                    /* RDEF  */
-    RLET = 280,                    /* RLET  */
-    RIN = 281,                     /* RIN  */
-    RID = 282,                     /* RID  */
-    RFOREVER = 283,                /* RFOREVER  */
-    RIF = 284,                     /* RIF  */
-    RDO = 285,                     /* RDO  */
-    RUNTIL = 286,                  /* RUNTIL  */
-    RELSE = 287,                   /* RELSE  */
-    RBREAK = 288,                  /* RBREAK  */
-    RNEXT = 289,                   /* RNEXT  */
-    RPRINT = 290,                  /* RPRINT  */
-    RREAD = 291,                   /* RREAD  */
-    TLPARENTHESIS = 292,           /* TLPARENTHESIS  */
-    TRPARENTHESIS = 293,           /* TRPARENTHESIS  */
-    TRBRACE = 294,                 /* TRBRACE  */
-    TLBRACE = 295,                 /* TLBRACE  */
-    TSEMIC = 296,                  /* TSEMIC  */
-    THASHTAG = 297,                /* THASHTAG  */
-    TDOLLAR = 298,                 /* TDOLLAR  */
-    TUNDERSCORE = 299,             /* TUNDERSCORE  */
-    TCOLON = 300,                  /* TCOLON  */
-    TAPOSTROPHE = 301,             /* TAPOSTROPHE  */
-    TCOMMA = 302,                  /* TCOMMA  */
-    TAMPERSAND = 303,              /* TAMPERSAND  */
-    TQMARK = 304,                  /* TQMARK  */
-    TEMARK = 305,                  /* TEMARK  */
-    TPERCENT = 306                 /* TPERCENT  */
+    ROR = 276,                     /* ROR  */
+    RAND = 277,                    /* RAND  */
+    RNOT = 278,                    /* RNOT  */
+    RPROGRAM = 279,                /* RPROGRAM  */
+    RPROCEDURE = 280,              /* RPROCEDURE  */
+    RMAIN = 281,                   /* RMAIN  */
+    RDEF = 282,                    /* RDEF  */
+    RLET = 283,                    /* RLET  */
+    RIN = 284,                     /* RIN  */
+    RID = 285,                     /* RID  */
+    RFOREVER = 286,                /* RFOREVER  */
+    RIF = 287,                     /* RIF  */
+    RDO = 288,                     /* RDO  */
+    RUNTIL = 289,                  /* RUNTIL  */
+    RELSE = 290,                   /* RELSE  */
+    RBREAK = 291,                  /* RBREAK  */
+    RNEXT = 292,                   /* RNEXT  */
+    RPRINT = 293,                  /* RPRINT  */
+    RREAD = 294,                   /* RREAD  */
+    TLPARENTHESIS = 295,           /* TLPARENTHESIS  */
+    TRPARENTHESIS = 296,           /* TRPARENTHESIS  */
+    TRBRACE = 297,                 /* TRBRACE  */
+    TLBRACE = 298,                 /* TLBRACE  */
+    TSEMIC = 299,                  /* TSEMIC  */
+    THASHTAG = 300,                /* THASHTAG  */
+    TDOLLAR = 301,                 /* TDOLLAR  */
+    TUNDERSCORE = 302,             /* TUNDERSCORE  */
+    TCOLON = 303,                  /* TCOLON  */
+    TAPOSTROPHE = 304,             /* TAPOSTROPHE  */
+    TCOMMA = 305,                  /* TCOMMA  */
+    TAMPERSAND = 306,              /* TAMPERSAND  */
+    TQMARK = 307,                  /* TQMARK  */
+    TEMARK = 308,                  /* TEMARK  */
+    TPERCENT = 309                 /* TPERCENT  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -120,7 +123,7 @@ union YYSTYPE
     int ref                     ;
     RefLista *lent              ;
 
-#line 124 "parser.h"
+#line 127 "parser.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

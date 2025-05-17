@@ -58,7 +58,7 @@
 %token <nombre> TASSIG 
 %token <nombre> TID TFLOAT_CNST TINT_CNST
 %token <nombre> RFLOAT RINT
-%token <nombre> TCEQ TCNE TCGE TCLE TCGT TCLT
+%token <nombre> TCEQ TCNE TCGE TCLE TCGT TCLT ROR RAND RNOT
 
 /*  Estos tokens no tienen atributos:   */
 
@@ -95,7 +95,7 @@
 /*** Definir aquí las prioridades de los operadores, una línea por cada nivel: */
 /*** %left evaluar de izquierda a derecha                                      */
 /*** %nonassoc solo se admite un operador en la secuencia                      */
-%nonassoc TCEQ TCNE TCGE TCLE TCGT TCLT
+%nonassoc TCEQ TCNE TCGE TCLE TCGT TCLT ROR RAND RNOT
 
 %left TADD TSUB
 %left TMUL TDIVENT TDIVREAL
@@ -349,6 +349,23 @@ expression : expression TCEQ expression{
                 $$->falses = $2->falses;
                 $$->trues = $2->trues;
              }
+        | expression ROR M expression {
+                $$ = new expressionStruct;
+                codigo.completarInstrucciones($1->falses, $3);
+                $$->trues = codigo.unir($1->trues, $4->trues);
+                $$->falses = $4->falses;
+        }
+        | expression RAND M expression {
+                $$ = new expressionStruct;
+                codigo.completarInstrucciones($1->trues, $3);
+                $$->trues = $4->trues;
+                $$->falses = codigo.unir($1->falses, $4->falses);
+        }
+        | RNOT expression {
+                $$ = new expressionStruct;
+                $$->falses = $2->trues;
+                $$->trues = $2->falses;
+        }
 M:  %empty { $$ = codigo.obtenRef() ; }
 %%
 

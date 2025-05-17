@@ -1,0 +1,13 @@
+# Probando expresiones booleanas
+
+def main () {
+   def pruebaDeclaraciones
+   {
+      a = a or b;
+      a = a and b;
+      a = not a;
+      a = not 1;
+      a = not 0;
+      a = a and not b;
+   }
+}

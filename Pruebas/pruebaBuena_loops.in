@@ -1,0 +1,27 @@
+# Probando estructura de los loops
+
+def main ()
+{
+    # Probando DO
+    do {
+        iteration = iteration + 1;
+    } until aux /= 0
+    else {
+        print(iteration);
+
+        # Probando NEXT
+        if aux == 1 {
+            next;
+        }
+    } # end do
+
+    # Probando WHILE
+    forever {
+        print(a);
+
+        # Probando BREAK IF
+        break if a == 1;
+    }
+
+
+}

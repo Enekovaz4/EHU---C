@@ -1,0 +1,20 @@
+# Probando los if y los if anidados
+
+def main ()
+{
+   if 1 == 2 {
+      a = 2;
+   };
+
+   if a /== 2 {
+      print(b);
+   }
+   
+   if (a == 2) { # con parentesis
+      print(v)
+   }
+
+   if a == 3 { # sin cerrar llave
+      
+   
+}

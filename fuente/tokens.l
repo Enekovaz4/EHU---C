@@ -40,6 +40,9 @@ break           TOKEN(RBREAK);
 next            TOKEN(RNEXT);
 print           TOKEN(RPRINT);
 read            TOKEN(RREAD);
+or              TOKEN(ROR);
+and             TOKEN(RAND);
+not             TOKEN(RNOT);
 
 
 

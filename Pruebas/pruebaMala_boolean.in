@@ -1,0 +1,14 @@
+# Probando expresiones booleanas
+
+def main () {
+   def pruebaDeclaraciones
+   {
+      a = (a or b) # sin punto y coma final
+
+      no se permite doble or, and or not
+      a = a or b or c; 
+      a = a and b and c;
+      a = not not a;
+      a = not (not a);
+   }
+}

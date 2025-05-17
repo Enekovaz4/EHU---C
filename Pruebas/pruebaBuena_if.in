@@ -1,0 +1,18 @@
+# Probando los if y los if anidados
+
+def main ()
+{
+   a = 2;
+   if 1 == 2 {
+      a = 2;
+   }
+
+   if a /= 2 {
+      print(b);
+      if a == 3 {
+         if a >= 4 {
+            print(AAAA);
+         }
+      }
+   }
+}
